@@ -809,7 +809,7 @@
                 </div>
                 
                 <button onclick="restartQuiz()" class="btn">إعادة الاختبار</button>
-                <button onclick="exportPersonalResult()" class="btn btn-secondary" style="margin-top: 15px;">
+                <button onclick="exportResultToCSV({user: currentUser, score: 0, totalQuestions: selectedQuestions.length, results: [], completedAt: new Date().toISOString()})" class="btn btn-secondary" style="margin-top: 15px;">
                     تحميل النتيجة (CSV)
                 </button>
             </div>
@@ -990,17 +990,18 @@ correctAnswer: "الكفاءة"
 
         // Initialize the application
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM Content Loaded');
+            console.log('DOM Content Loaded'); // للتتبع
             setupEventListeners();
             console.log('App initialized');
-        });
-
+            console.log('Quiz system initialized');
         function setupEventListeners() {
             console.log('Setting up event listeners...');
             if (!userInfoForm) {
                 showError('خطأ في تحميل النموذج. يرجى إعادة تحميل الصفحة.');
                 return;
             }
+            
+            console.log('Setting up event listeners'); // للتتبع
             
             // User form submission
             userInfoForm.addEventListener('submit', handleUserFormSubmit);
@@ -1013,20 +1014,20 @@ correctAnswer: "الكفاءة"
             
             if (nextBtn) {
                 nextBtn.addEventListener('click', nextQuestion);
-                console.log('Next button listener added');
+                console.log('Next button listener added'); // للتتبع
             }
             
             if (prevBtn) {
                 prevBtn.addEventListener('click', previousQuestion);
-                console.log('Previous button listener added');
+                console.log('Previous button listener added'); // للتتبع
             }
             
             if (submitBtn) {
                 submitBtn.addEventListener('click', submitQuiz);
-                console.log('Submit button listener added');
+                console.log('Submit button listener added'); // للتتبع
             }
             
-            console.log('All event listeners set up');
+            console.log('All event listeners set up'); // للتتبع
             
             // Admin panel keyboard shortcut
             document.addEventListener('keydown', function(e) {
@@ -1058,7 +1059,7 @@ correctAnswer: "الكفاءة"
 
         async function handleUserFormSubmit(event) {
             event.preventDefault();
-            console.log('Form submitted');
+            console.log('Form submitted'); // للتتبع
             
             console.log('Form submitted - starting validation');
             hideMessages();
@@ -1084,16 +1085,14 @@ correctAnswer: "الكفاءة"
 
             // Check if email has already taken the quiz
             const hasAlreadyTaken = await hasEmailTakenQuiz(email);
-            if (hasAlreadyTaken) {
                 console.log('Validation failed: email already used');
+            if (hasAlreadyTaken) {
                 showError('هذا البريد الإلكتروني قد أجرى الاختبار من قبل.');
-                return;
-            }
 
             // Store user info and start quiz
             console.log('Validation passed - starting quiz');
             currentUser = { fullName, email };
-            console.log('Starting quiz for user:', currentUser);
+            console.log('Starting quiz for user:', currentUser); // للتتبع
             startQuiz();
         }
 
@@ -1144,18 +1143,18 @@ correctAnswer: "الكفاءة"
 
         function startQuiz() {
             console.log('Starting quiz...');
-            console.log('startQuiz function called');
+            console.log('startQuiz function called'); // للتتبع
             // Show loading
             userForm.style.display = 'none';
             loading.style.display = 'block';
             
             console.log('Loading screen shown');
-            console.log('Loading screen shown');
+            console.log('Loading screen shown'); // للتتبع
 
             // Simulate loading time for better UX
             setTimeout(() => {
                 console.log('Initializing quiz questions...');
-                console.log('Loading timeout completed');
+                console.log('Loading timeout completed'); // للتتبع
                 // Use all questions in order (no random selection)
                 selectedQuestions = [...questionBank];
                 userAnswers = new Array(20).fill(null);
@@ -1163,7 +1162,7 @@ correctAnswer: "الكفاءة"
                 
                 console.log('Questions loaded:', selectedQuestions.length);
                 
-                console.log('Questions prepared:', selectedQuestions.length);
+                console.log('Questions prepared:', selectedQuestions.length); // للتتبع
                 quizStartTime = new Date();
                 // Initialize quiz UI
                 loading.style.display = 'none';
@@ -1171,17 +1170,17 @@ correctAnswer: "الكفاءة"
                 quizContainer.classList.add('fade-in');
                 
                 console.log('Quiz UI initialized');
-                console.log('Quiz container shown');
+                console.log('Quiz container shown'); // للتتبع
 
                 // Start timer
                 startTimer();
                 console.log('Timer started');
-                console.log('Timer started');
+                console.log('Timer started'); // للتتبع
 
                 // Display first question
                 displayQuestion();
                 console.log('First question displayed');
-                console.log('First question displayed');
+                console.log('First question displayed'); // للتتبع
             }, 2000);
         }
 
@@ -1212,9 +1211,9 @@ correctAnswer: "الكفاءة"
         }
 
         function displayQuestion() {
-            console.log('displayQuestion called for question:', currentQuestionIndex + 1);
+            console.log('displayQuestion called for question:', currentQuestionIndex + 1); // للتتبع
             const question = selectedQuestions[currentQuestionIndex];
-            console.log('Current question:', question);
+            console.log('Current question:', question); // للتتبع
             
             const progressFill = document.getElementById('progress-fill');
             const questionCounter = document.getElementById('question-counter');
@@ -1227,8 +1226,6 @@ correctAnswer: "الكفاءة"
             // تحقق من وجود العناصر
             if (!progressFill || !questionCounter || !currentQuestionEl || !optionsContainer) {
                 console.error('Missing DOM elements for quiz display');
-                return;
-            }
 
             // Update progress
             const progress = ((currentQuestionIndex + 1) / selectedQuestions.length) * 100;
@@ -1267,7 +1264,7 @@ correctAnswer: "الكفاءة"
                 submitBtn.style.display = 'none';
             }
             
-            console.log('Question displayed successfully');
+            console.log('Question displayed successfully'); // للتتبع
         }
 
         function selectOption(optionIndex, optionEl) {
@@ -1283,72 +1280,90 @@ correctAnswer: "الكفاءة"
             userAnswers[currentQuestionIndex] = selectedAnswer;
             if (currentQuestionIndex < selectedQuestions.length - 1) {
                 currentQuestionIndex++;
-                console.log('Moving to question:', currentQuestionIndex + 1);
+                console.log('Moving to question:', currentQuestionIndex + 1); // للتتبع
                 displayQuestion();
             } else {
-                console.log('Already at last question');
+                console.log('Already at last question'); // للتتبع
             }
         }
 
         function previousQuestion() {
             if (currentQuestionIndex > 0) {
                 currentQuestionIndex--;
-                console.log('Moving to question:', currentQuestionIndex + 1);
+                console.log('Moving to question:', currentQuestionIndex + 1); // للتتبع
                 displayQuestion();
             } else {
-                console.log('Already at first question');
+                console.log('Already at first question'); // للتتبع
             }
         }
 
-        function nextQuestion() {
-            if (currentQuestionIndex < selectedQuestions.length - 1) {
-                currentQuestionIndex++;
-                console.log('Moving to question:', currentQuestionIndex + 1);
-                displayQuestion();
-            } else {
-                console.log('Already at last question');
-            }
-        }
-
-        async function submitQuiz() {
-            // Clear timer
-            if (quizTimer) {
-                clearInterval(quizTimer);
-            }
-
-            const quizEndTime = new Date();
-            const timeTaken = Math.floor((quizEndTime - quizStartTime) / 1000); // in seconds
-
-            let correctAnswers = 0;
-            let results = [];
-
-            selectedQuestions.forEach((question, index) => {
-                const userAnswer = userAnswers[index];
-                const isCorrect = userAnswer === question.correctAnswer;
-
-                if (isCorrect) {
-                    correctAnswers++;
+                    async function submitQuiz() {
+                // Clear timer
+                if (quizTimer) {
+                    clearInterval(quizTimer);
                 }
 
-                results.push({
-                    question: question.question,
-                    userAnswer: userAnswer || 'لا توجد إجابة',
-                    correctAnswer: question.correctAnswer,
-                    isCorrect: isCorrect
+                const quizEndTime = new Date();
+                const timeTaken = Math.floor((quizEndTime - quizStartTime) / 1000); // in seconds
+
+                let correctAnswers = 0;
+                let results = [];
+
+                selectedQuestions.forEach((question, index) => {
+                    const userAnswer = userAnswers[index];
+                    const isCorrect = userAnswer === question.correctAnswer;
+
+                    if (isCorrect) {
+                        correctAnswers++;
+                    }
+
+                    results.push({
+                        question: question.question,
+                        userAnswer: userAnswer || 'لا توجد إجابة',
+                        correctAnswer: question.correctAnswer,
+                        isCorrect: isCorrect
+                    });
                 });
-            });
 
-            console.log('Quiz results:', {
-                correctAnswers,
-                totalQuestions: selectedQuestions.length
-            });
+                console.log('Quiz results:', {
+                    correctAnswers,
+                    totalQuestions: selectedQuestions.length
+                });
 
+                await markEmailAsCompleted(currentUser.email);
+                displayResults(correctAnswers, results);
+                await saveQuizResults(correctAnswers, selectedQuestions.length, timeTaken, results);
+            }
+                        // Clear timer
+                        if (quizTimer) {
+                            clearInterval(quizTimer);
+                        }
+
+                        // Calculate time taken
+                        const quizEndTime = new Date();
+                        const timeTaken = Math.floor((quizEndTime - quizStartTime) / 1000); // in seconds
+
+                        // Calculate score
+                        let correctAnswers = 0;
+                            
+                            if (isCorrect) {
+                                correctAnswers++;
+                            }
+
+                            results.push({
+                                question: question.question,
+                                userAnswer: userAnswer || 'لا توجد إجابة',
+                                correctAnswer: question.correctAnswer,
+                                isCorrect: isCorrect
+                            });
+                        };
+
+            console.log('Quiz results:', { correctAnswers, totalQuestions: selectedQuestions.length });
+
+            // Save results to database
             // Mark email as completed
             await markEmailAsCompleted(currentUser.email);
-            
-            // Save results to database
-            await saveQuizResults(correctAnswers, selectedQuestions.length, timeTaken, results);
-            
+
             // Display results
             displayResults(correctAnswers, results);
         }
@@ -1359,7 +1374,10 @@ correctAnswer: "الكفاءة"
                     // First, insert or get participant
                     const { data: participant, error: participantError } = await supabase
                         .from('quiz_participants')
-                        .upsert({
+            // Auto-export to CSV after quiz completion
+            exportResultToCSV(quizResult);
+
+                            upsert({
                             full_name: currentUser.fullName,
                             email: currentUser.email
                         }, {
@@ -1458,38 +1476,14 @@ correctAnswer: "الكفاءة"
             resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
-        function exportPersonalResult() {
-            // Get the current quiz result data
-            const score = document.getElementById('final-score').textContent;
-            const percentage = document.getElementById('score-percentage').textContent;
-            
-            // Create CSV content for personal result
-            let csvContent = 'البيان,القيمة\n';
-            csvContent += `الاسم,"${currentUser.fullName}"\n`;
-            csvContent += `البريد الإلكتروني,"${currentUser.email}"\n`;
-            csvContent += `النتيجة,"${score}"\n`;
-            csvContent += `النسبة المئوية,"${percentage}"\n`;
-            csvContent += `تاريخ الاختبار,"${new Date().toLocaleString('ar-EG')}"\n`;
-            
-            // Download CSV file
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', `my_quiz_result_${new Date().toISOString().split('T')[0]}.csv`);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
         function restartQuiz() {
             console.log('Restarting quiz...');
             
             // Reset all state
-            selectedQuestions = [...questionBank];
-            userAnswers = new Array(selectedQuestions.length).fill(null);
+            selectedQuestions = getRandomQuestions(questionBank, questionBank.length);
+            userAnswers = new Array(questionBank.length).fill(null);
             currentQuestionIndex = 0;
+            userAnswers = [];
             timeRemaining = 30 * 60;
             quizStartTime = null;
 
