@@ -520,6 +520,26 @@
             font-family: 'Cairo', sans-serif;
         }
 
+        .storage-status {
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .storage-status.local {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .storage-status.cloud {
+            background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
         .admin-stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -829,6 +849,10 @@
                 <button class="admin-close" onclick="toggleAdminPanel()">إغلاق</button>
             </div>
 
+            <div id="storage-status" class="storage-status">
+                <!-- سيتم ملؤها بـ JavaScript -->
+            </div>
+
             <div class="admin-stats">
                 <div class="stat-card">
                     <div class="stat-number" id="total-participants">0</div>
@@ -847,6 +871,8 @@
             <div class="admin-actions">
                 <button class="admin-btn export" onclick="exportToCSV()">تصدير Excel/CSV</button>
                 <button class="admin-btn export" onclick="exportEmails()">تصدير الإيميلات</button>
+                <button class="admin-btn export" onclick="exportDataBackup()" style="background: #6f42c1; color: white;">نسخ احتياطي للبيانات</button>
+                <button class="admin-btn" onclick="importDataBackup()" style="background: #20c997; color: white;">استيراد البيانات</button>
                 <button class="admin-btn clear" onclick="clearAllData()">مسح جميع البيانات</button>
                 <button class="admin-btn" style="background: #007bff; color: white;" onclick="refreshStats()">تحديث الإحصائيات</button>
             </div>
@@ -860,14 +886,20 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // إعداد Supabase
+        // إعداد Supabase - ضع بياناتك هنا للمشاركة عبر المتصفحات
         const SUPABASE_URL = 'YOUR_SUPABASE_URL_HERE';
         const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY_HERE';
         
         // تحقق من وجود إعدادات Supabase
         let supabase = null;
+        let useCloudStorage = false;
+        
         if (SUPABASE_URL !== 'YOUR_SUPABASE_URL_HERE' && SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY_HERE') {
             supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            useCloudStorage = true;
+            console.log('تم تفعيل التخزين السحابي - البيانات ستظهر في جميع المتصفحات');
+        } else {
+            console.log('التخزين المحلي فقط - للمشاركة عبر المتصفحات، قم بإعداد Supabase');
         }
 
         // Question Bank - 80 Questions in Arabic
@@ -1578,8 +1610,45 @@ correctAnswer: "الكفاءة"
             }, 3000);
         }
 
+        function updateStorageStatus() {
+            const statusDiv = document.getElementById('storage-status');
+            if (useCloudStorage) {
+                statusDiv.className = 'storage-status cloud';
+                statusDiv.innerHTML = `
+                    <strong>🌐 التخزين السحابي مفعل</strong><br>
+                    البيانات متاحة من جميع المتصفحات والأجهزة
+                `;
+            } else {
+                statusDiv.className = 'storage-status local';
+                statusDiv.innerHTML = `
+                    <strong>⚠️ التخزين المحلي فقط</strong><br>
+                    البيانات متاحة فقط في هذا المتصفح. لمشاركة البيانات عبر المتصفحات، قم بإعداد Supabase<br>
+                    <small><a href="#" onclick="showSupabaseInstructions()" style="color: #856404; text-decoration: underline;">إرشادات الإعداد</a></small>
+                `;
+            }
+        }
+
+        function showSupabaseInstructions() {
+            alert(`إرشادات إعداد التخزين السحابي:
+
+1. اذهب إلى موقع supabase.com
+2. أنشئ حساب مجاني
+3. أنشئ مشروع جديد
+4. من إعدادات المشروع، انسخ:
+   - Project URL
+   - Anon Key
+5. ضعهما في الكود مكان:
+   - YOUR_SUPABASE_URL_HERE
+   - YOUR_SUPABASE_ANON_KEY_HERE
+
+بعدها ستتمكن من رؤية البيانات من أي متصفح!`);
+        }
+
         async function refreshStats() {
             console.log('Refreshing admin stats...');
+            
+            // تحديث حالة التخزين
+            updateStorageStatus();
             
             if (supabase) {
                 try {
@@ -1817,6 +1886,105 @@ correctAnswer: "الكفاءة"
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+        }
+
+        async function exportDataBackup() {
+            console.log('Creating data backup...');
+            
+            let allResults = [];
+            let completedEmails = [];
+            
+            if (supabase) {
+                try {
+                    const { data } = await supabase
+                        .from('quiz_results')
+                        .select(`
+                            *,
+                            quiz_participants (full_name, email)
+                        `)
+                        .order('completed_at', { ascending: false });
+                    
+                    allResults = data || [];
+                    completedEmails = allResults.map(r => r.quiz_participants.email);
+                } catch (error) {
+                    console.error('Error fetching data for backup:', error);
+                    alert('حدث خطأ أثناء تصدير البيانات');
+                    return;
+                }
+            } else {
+                allResults = JSON.parse(localStorage.getItem('sbQuizResults') || '[]');
+                completedEmails = JSON.parse(localStorage.getItem('sbQuizCompletedEmails') || '[]');
+            }
+            
+            const backupData = {
+                timestamp: new Date().toISOString(),
+                version: '1.0',
+                quizResults: allResults,
+                completedEmails: completedEmails,
+                totalParticipants: completedEmails.length
+            };
+            
+            const dataStr = JSON.stringify(backupData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `quiz_backup_${new Date().toISOString().split('T')[0]}.json`;
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            alert('تم إنشاء النسخة الاحتياطية بنجاح! يمكنك استخدام هذا الملف لنقل البيانات لمتصفح آخر.');
+        }
+
+        async function importDataBackup() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.style.display = 'none';
+            input.onchange = async function(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                try {
+                    const text = await file.text();
+                    const backupData = JSON.parse(text);
+                    
+                    if (!backupData.quizResults || !backupData.completedEmails) {
+                        alert('ملف النسخة الاحتياطية غير صالح');
+                        return;
+                    }
+                    
+                    const confirmMsg = `هل تريد استيراد النسخة الاحتياطية؟\n\nالملف يحتوي على:\n- ${backupData.totalParticipants} مشارك\n- تاريخ النسخة: ${new Date(backupData.timestamp).toLocaleString('ar-EG')}\n\nتحذير: سيتم دمج البيانات مع البيانات الحالية`;
+                    
+                    if (confirm(confirmMsg)) {
+                        if (supabase) {
+                            alert('الاستيراد للتخزين السحابي يتطلب إعداد خاص. يرجى استخدام التخزين المحلي للاستيراد.');
+                        } else {
+                            // استيراد للتخزين المحلي
+                            const currentResults = JSON.parse(localStorage.getItem('sbQuizResults') || '[]');
+                            const currentEmails = JSON.parse(localStorage.getItem('sbQuizCompletedEmails') || '[]');
+                            
+                            // دمج البيانات
+                            const mergedResults = [...currentResults, ...backupData.quizResults];
+                            const mergedEmails = [...new Set([...currentEmails, ...backupData.completedEmails])];
+                            
+                            localStorage.setItem('sbQuizResults', JSON.stringify(mergedResults));
+                            localStorage.setItem('sbQuizCompletedEmails', JSON.stringify(mergedEmails));
+                            
+                            alert(`تم استيراد البيانات بنجاح!\nتم إضافة ${backupData.totalParticipants} مشارك`);
+                            refreshStats();
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error importing backup:', error);
+                    alert('حدث خطأ أثناء استيراد النسخة الاحتياطية');
+                }
+            };
+            input.click();
         }
 
         async function clearAllData() {
