@@ -990,18 +990,35 @@ correctAnswer: "الكفاءة"
 
         // Initialize the application
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM Content Loaded'); // للتتبع
+            console.log('DOM Content Loaded');
+            
+            // Clear URL parameters if present
+            if (window.location.search) {
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+            
             setupEventListeners();
+            
+            // Ensure the user form is visible on page load
+            const userFormDiv = document.getElementById('user-form');
+            const loadingDiv = document.getElementById('loading');
+            const quizDiv = document.getElementById('quiz-container');
+            const resultsDiv = document.getElementById('results-container');
+            
+            if (userFormDiv) userFormDiv.style.display = 'block';
+            if (loadingDiv) loadingDiv.style.display = 'none';
+            if (quizDiv) quizDiv.style.display = 'none';
+            if (resultsDiv) resultsDiv.style.display = 'none';
+            
             console.log('App initialized');
-            console.log('Quiz system initialized');
+        });
+
         function setupEventListeners() {
             console.log('Setting up event listeners...');
             if (!userInfoForm) {
                 showError('خطأ في تحميل النموذج. يرجى إعادة تحميل الصفحة.');
                 return;
             }
-            
-            console.log('Setting up event listeners'); // للتتبع
             
             // User form submission
             userInfoForm.addEventListener('submit', handleUserFormSubmit);
@@ -1014,20 +1031,20 @@ correctAnswer: "الكفاءة"
             
             if (nextBtn) {
                 nextBtn.addEventListener('click', nextQuestion);
-                console.log('Next button listener added'); // للتتبع
+                console.log('Next button listener added');
             }
             
             if (prevBtn) {
                 prevBtn.addEventListener('click', previousQuestion);
-                console.log('Previous button listener added'); // للتتبع
+                console.log('Previous button listener added');
             }
             
             if (submitBtn) {
                 submitBtn.addEventListener('click', submitQuiz);
-                console.log('Submit button listener added'); // للتتبع
+                console.log('Submit button listener added');
             }
             
-            console.log('All event listeners set up'); // للتتبع
+            console.log('All event listeners set up');
             
             // Admin panel keyboard shortcut
             document.addEventListener('keydown', function(e) {
