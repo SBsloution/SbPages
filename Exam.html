@@ -87,6 +87,11 @@
 
         .sb-logo:hover {
             transform: scale(1.05);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .sb-logo:active {
+            transform: scale(0.98);
         }
 
         .content {
@@ -737,7 +742,7 @@
     <div class="container">
         <div class="header">
             <div class="header-content">
-                <div class="sb-logo" ondblclick="toggleAdminPanel()">SB</div>
+                <div class="sb-logo" ondblclick="toggleAdminPanel()" title="اضغط مرتين للوصول إلى لوحة التحكم">SB</div>
                 <h1>نظام الاختبار التفاعلي</h1>
                 <p>اختبر معلوماتك مع نظام الاختبارات الشامل الخاص بنا</p>
             </div>
@@ -1528,9 +1533,49 @@ correctAnswer: "الكفاءة"
             if (adminPanel.style.display === 'block') {
                 adminPanel.style.display = 'none';
             } else {
-                adminPanel.style.display = 'block';
-                refreshStats();
+                // طلب كلمة المرور قبل فتح لوحة التحكم
+                const password = prompt('أدخل كلمة مرور المدير للوصول إلى لوحة التحكم:');
+                
+                if (password === '159632') {
+                    adminPanel.style.display = 'block';
+                    refreshStats();
+                    showAdminMessage('تم تسجيل الدخول بنجاح إلى لوحة التحكم', 'success');
+                } else if (password !== null) { // إذا لم يضغط المستخدم على إلغاء
+                    alert('كلمة المرور غير صحيحة! لا يمكن الوصول إلى لوحة التحكم.');
+                }
             }
+        }
+
+        function showAdminMessage(message, type) {
+            // إنشاء رسالة نجاح أو خطأ في لوحة التحكم
+            const adminContent = document.querySelector('.admin-content');
+            const existingMessage = adminContent.querySelector('.admin-message');
+            
+            if (existingMessage) {
+                existingMessage.remove();
+            }
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `admin-message ${type}`;
+            messageDiv.style.cssText = `
+                padding: 12px 20px;
+                margin-bottom: 20px;
+                border-radius: 8px;
+                font-weight: 500;
+                background: ${type === 'success' ? '#d4edda' : '#f8d7da'};
+                color: ${type === 'success' ? '#155724' : '#721c24'};
+                border: 1px solid ${type === 'success' ? '#c3e6cb' : '#f1aeb5'};
+            `;
+            messageDiv.textContent = message;
+            
+            adminContent.insertBefore(messageDiv, adminContent.firstChild);
+            
+            // إزالة الرسالة بعد 3 ثوان
+            setTimeout(() => {
+                if (messageDiv.parentNode) {
+                    messageDiv.remove();
+                }
+            }, 3000);
         }
 
         async function refreshStats() {
