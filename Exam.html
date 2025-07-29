@@ -1,0 +1,1800 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام الاختبار التفاعلي - SB Solutions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cairo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #2c3e50;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            min-height: 600px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+            font-weight: 300;
+        }
+
+        .sb-logo {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            background: white;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: #667eea;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .sb-logo:hover {
+            transform: scale(1.05);
+        }
+
+        .content {
+            padding: 50px;
+        }
+
+        .form-group {
+            margin-bottom: 30px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #2c3e50;
+            font-size: 1.1rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 18px 20px;
+            border: 2px solid #e8ecef;
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: 'Cairo', sans-serif;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+            direction: rtl;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 18px 35px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            font-family: 'Cairo', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .quiz-container {
+            display: none;
+        }
+
+        .progress-container {
+            margin-bottom: 35px;
+        }
+
+        .progress-bar {
+            background: #e8ecef;
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-fill {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.4s ease;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .quiz-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 35px;
+            padding: 25px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            border: 1px solid #dee2e6;
+        }
+
+        .quiz-info span {
+            font-weight: 600;
+            color: #495057;
+            font-size: 1.1rem;
+        }
+
+        .timer {
+            color: #e74c3c;
+            font-weight: 700;
+            font-size: 1.4rem;
+            background: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(231, 76, 60, 0.2);
+        }
+
+        .question-container {
+            margin-bottom: 35px;
+        }
+
+        .question {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 30px;
+            color: #2c3e50;
+            line-height: 1.5;
+            padding: 25px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            border-right: 5px solid #667eea;
+        }
+
+        .options {
+            display: grid;
+            gap: 18px;
+        }
+
+        .option {
+            padding: 20px 25px;
+            border: 2px solid #e8ecef;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+            font-size: 16px;
+            font-family: 'Cairo', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+            transition: right 0.3s;
+        }
+
+        .option:hover::before {
+            right: 100%;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.15);
+        }
+
+        .option.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+        }
+
+        .quiz-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+            gap: 20px;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            flex: 1;
+            max-width: 200px;
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #5a6268 0%, #343a40 100%);
+            transform: translateY(-3px);
+        }
+
+        .btn-primary {
+            flex: 1;
+            max-width: 200px;
+        }
+
+        .results-container {
+            display: none;
+            text-align: center;
+        }
+
+        .score-display {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 50px;
+            border-radius: 20px;
+            margin-bottom: 35px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .score-display::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: rotate 10s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .score-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .score-display h2 {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .score-display p {
+            font-size: 1.3rem;
+            opacity: 0.95;
+            font-weight: 300;
+        }
+
+        .results-details {
+            text-align: right;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 40px;
+            border-radius: 20px;
+            margin-bottom: 35px;
+            border: 1px solid #dee2e6;
+        }
+
+        .results-details h3 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .result-item {
+            margin-bottom: 25px;
+            padding: 20px;
+            border-right: 5px solid #667eea;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .result-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-item.correct {
+            border-right-color: #28a745;
+        }
+
+        .result-item.incorrect {
+            border-right-color: #dc3545;
+        }
+
+        .result-question {
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #2c3e50;
+            font-size: 1.1rem;
+        }
+
+        .result-answer {
+            font-size: 0.95rem;
+            color: #6c757d;
+            line-height: 1.6;
+        }
+
+        .error-message {
+            background: linear-gradient(135deg, #f8d7da 0%, #f1aeb5 100%);
+            color: #721c24;
+            padding: 18px 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border: 1px solid #f1aeb5;
+            font-weight: 500;
+        }
+
+        .success-message {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            color: #155724;
+            padding: 18px 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border: 1px solid #c3e6cb;
+            font-weight: 500;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 60px;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 6px solid #e8ecef;
+            border-top: 6px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 25px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading p {
+            color: #6c757d;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        /* Admin Panel Styles */
+        .admin-panel {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 10000;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .admin-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            direction: rtl;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .admin-close {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .admin-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .admin-btn.export {
+            background: #28a745;
+            color: white;
+        }
+
+        .admin-btn.clear {
+            background: #dc3545;
+            color: white;
+        }
+
+        .admin-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .results-table th,
+        .results-table td {
+            padding: 12px;
+            text-align: right;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .results-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .results-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                margin: 0;
+                border-radius: 15px;
+            }
+
+            .content {
+                padding: 30px 25px;
+            }
+
+            .header {
+                padding: 30px 25px;
+            }
+
+            .header h1 {
+                font-size: 2.2rem;
+            }
+
+            .header p {
+                font-size: 1rem;
+            }
+
+            .quiz-info {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .quiz-navigation {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .btn-secondary,
+            .btn-primary {
+                max-width: none;
+            }
+
+            .question {
+                font-size: 1.2rem;
+                padding: 20px;
+            }
+
+            .score-display {
+                padding: 35px 25px;
+            }
+
+            .score-display h2 {
+                font-size: 2.5rem;
+            }
+
+            .results-details {
+                padding: 25px 20px;
+                text-align: right;
+            }
+
+            .admin-content {
+                padding: 20px;
+                margin: 10px;
+            }
+
+            .admin-actions {
+                flex-direction: column;
+            }
+
+            .admin-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .content {
+                padding: 20px 15px;
+            }
+
+            .question {
+                font-size: 1.1rem;
+                padding: 15px;
+            }
+
+            .option {
+                padding: 15px 20px;
+            }
+
+            .score-display h2 {
+                font-size: 2rem;
+            }
+        }
+
+        /* RTL Specific Styles */
+        .quiz-navigation {
+            direction: rtl;
+        }
+
+        .result-item {
+            border-right: 5px solid #667eea;
+            border-left: none;
+        }
+
+        .result-item.correct {
+            border-right-color: #28a745;
+        }
+
+        .result-item.incorrect {
+            border-right-color: #dc3545;
+        }
+
+        .question {
+            border-right: 5px solid #667eea;
+            border-left: none;
+        }
+
+        /* Animation for page transitions */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <div class="sb-logo" ondblclick="toggleAdminPanel()">SB</div>
+                <h1>نظام الاختبار التفاعلي</h1>
+                <p>اختبر معلوماتك مع نظام الاختبارات الشامل الخاص بنا</p>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- User Registration Form -->
+            <div id="user-form" class="user-form fade-in">
+                <h2 style="margin-bottom: 35px; color: #2c3e50; font-size: 2rem; font-weight: 600;">ابدأ الاختبار</h2>
+                <div id="error-message" class="error-message" style="display: none;"></div>
+                <div id="success-message" class="success-message" style="display: none;"></div>
+                
+                <form id="userInfoForm">
+                    <div class="form-group">
+                        <label for="fullName">الاسم الكامل</label>
+                        <input type="text" id="fullName" name="fullName" required placeholder="أدخل اسمك الكامل">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">البريد الإلكتروني</label>
+                        <input type="email" id="email" name="email" required placeholder="أدخل بريدك الإلكتروني">
+                    </div>
+                    <button type="submit" class="btn">ابدأ الاختبار</button>
+                </form>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>جاري تحضير الاختبار...</p>
+            </div>
+
+            <!-- Quiz Container -->
+            <div id="quiz-container" class="quiz-container fade-in">
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <div class="quiz-info">
+                    <span id="question-counter">السؤال 1 من 20</span>
+                    <span id="timer" class="timer">30:00</span>
+                </div>
+
+                <div class="question-container">
+                    <div id="current-question" class="question"></div>
+                    <div id="options-container" class="options"></div>
+                </div>
+
+                <div class="quiz-navigation">
+                    <button id="next-btn" class="btn btn-primary">التالي</button>
+                    <button id="submit-btn" class="btn btn-primary" style="display: none;">إرسال الاختبار</button>
+                    <button id="prev-btn" class="btn btn-secondary" disabled>السابق</button>
+                </div>
+            </div>
+
+            <!-- Results Container -->
+            <div id="results-container" class="results-container fade-in">
+                <div class="score-display">
+                    <div class="score-content">
+                        <h2 id="final-score">نتيجتك: 0/20</h2>
+                        <p id="score-percentage">0% صحيح</p>
+                    </div>
+                </div>
+                
+                <div id="results-details" class="results-details">
+                    <h3>النتائج التفصيلية</h3>
+                    <div id="results-list"></div>
+                </div>
+                
+                <button onclick="restartQuiz()" class="btn">إعادة الاختبار</button>
+                <button onclick="exportResultToCSV({user: currentUser, score: 0, totalQuestions: selectedQuestions.length, results: [], completedAt: new Date().toISOString()})" class="btn btn-secondary" style="margin-top: 15px;">
+                    تحميل النتيجة (CSV)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="admin-panel" class="admin-panel">
+        <div class="admin-content">
+            <div class="admin-header">
+                <h2>لوحة تحكم المدير</h2>
+                <button class="admin-close" onclick="toggleAdminPanel()">إغلاق</button>
+            </div>
+
+            <div class="admin-stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="total-participants">0</div>
+                    <div>إجمالي المشاركين</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="avg-score">0%</div>
+                    <div>متوسط الدرجات</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="last-participant">-</div>
+                    <div>آخر مشارك</div>
+                </div>
+            </div>
+
+            <div class="admin-actions">
+                <button class="admin-btn export" onclick="exportToCSV()">تصدير Excel/CSV</button>
+                <button class="admin-btn export" onclick="exportEmails()">تصدير الإيميلات</button>
+                <button class="admin-btn clear" onclick="clearAllData()">مسح جميع البيانات</button>
+                <button class="admin-btn" style="background: #007bff; color: white;" onclick="refreshStats()">تحديث الإحصائيات</button>
+            </div>
+
+            <div id="admin-results">
+                <h3>جميع النتائج</h3>
+                <div id="results-display"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // إعداد Supabase
+        const SUPABASE_URL = 'YOUR_SUPABASE_URL_HERE';
+        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY_HERE';
+        
+        // تحقق من وجود إعدادات Supabase
+        let supabase = null;
+        if (SUPABASE_URL !== 'YOUR_SUPABASE_URL_HERE' && SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY_HERE') {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        }
+
+        // Question Bank - 80 Questions in Arabic
+        const questionBank = [
+            
+{
+question: "خلال ورشة عمل تخطيطية، طلب أحد المستشارين من الفريق تقديم بيانات دقيقة عن الأداء الحالي، بما في ذلك مؤشرات الإنتاجية وملاحظات العملاء. أي عنصر من نموذج ED SODA يتطلب هذا النوع من التحليل؟",
+options: ["الوضع الآن", "الخبرة", "الاتجاه", "المخرجات المطلوبة"],
+correctAnswer: "الوضع الآن"
+},
+{
+question: "في اجتماع تخطيط استراتيجي، سأل المدير التنفيذي: ما هي الرسالة التي نريد إيصالها؟ وما الأهداف التي نطمح لتحقيقها خلال السنوات الثلاث القادمة؟ أي عنصر من نموذج ED SODA يتناول هذا السؤال؟",
+options: ["الوضع الآن", "الموعد النهائي", "المخرجات المطلوبة", "الخبرة"],
+correctAnswer: "المخرجات المطلوبة"
+},
+{
+question: "شركة ناشئة لصناعة الألعاب اللوحية توقفت عن إنتاج أي ألعاب جديدة غير لعبتها الرائدة الوحيدة، وركّزت جميع مواردها على توسيع مبيعات هذه اللعبة وزيادة جودتها. أي استراتيجية كبرى تنطبق على هذا السيناريو؟",
+options: ["التكامل الأفقي", "التكامل الرأسي", "تطوير السوق", "تطوير المنتج", "التركيز", "الانكماش الانتقائي"],
+correctAnswer: "التركيز"
+},
+{
+question: "شركة تجميل قررت إغلاق خط إنتاج “علامات تجميل الشعر” الذي يحقق خسائر مستمرة، وإعادة تخصيص الموارد إلى علاماتها الأكثر ربحية. أي استراتيجية كبرى تنطبق على هذا السيناريو؟",
+options: ["التركيز", "تطوير المنتج", "الانكماش الانتقائي", "تطوير السوق"],
+correctAnswer: "الانكماش الانتقائي"
+},
+{
+question: "شركة “ABC للأجهزة الإلكترونية” استحوذت على شركة منافسة تنتج نفس نوع السماعات لتوسيع حصتها السوقية وخفض تكاليف الإنتاج. أي استراتيجية كبرى تنطبق على هذا السيناريو؟",
+options: ["التكامل الرأسي", "التكامل الأفقي", "التركيز", "الانكماش الانتقائي"],
+correctAnswer: "التكامل الأفقي"
+},
+{
+question: "نجح أحد المنافسين في توقيع عقد حصري مع المورد الأساسي للمواد الخام، مما يحد من وصول شركتك إليها وقد يؤثر في تكلفة الإنتاج. كيف تصنف هذه الحالة؟",
+options: ["نقطة قوة", "فرصة", "نقطة ضعف", "تهديد"],
+correctAnswer: "تهديد"
+},
+{
+question: "استقال مهندس رئيسي فجأة من فريق البحث والتطوير، ما خلق فجوة مهارية تؤثر على قدرة الشركة على الابتكار. كيف تصنف هذه الحالة؟",
+options: ["نقطة قوة", "فرصة", "تهديد", "نقطة ضعف"],
+correctAnswer: "نقطة ضعف"
+},
+{
+question: "أعلنت الحكومة عن حوافزٍ مالية للشركات التي تستثمر في الطاقة النظيفة وتقنيات خفض الانبعاثات، ما يفتح سوقاً جديداً أمام مصنعك لإنتاج حلول الطاقة المستدامة. كيف تصنف هذه المستجدات؟",
+options: ["نقطة قوة", "تهديد", "فرصة", "نقطة ضعف"],
+correctAnswer: "فرصة"
+},
+{
+question: "في كتابة رسالة المنظمة، السؤال الذي يساعد في توضيح سبب وجود المنظمة والقيم التي تلبيها في المجتمع هو:",
+options: ["ماذا؟", "لماذا؟", "كيف؟", "متى؟"],
+correctAnswer: "لماذا؟"
+},
+{
+question: "ما الاختلاف الرئيسي بين الخطط التوجيهية والخطط المحددة؟",
+options: ["درجة المرونة والتفصيل في التنفيذ", "الفترة الزمنية التي تغطيها الخطة", "مستوى الموارد المخصصة للخطة", "عدد الأشخاص المشاركين في إعداد الخطة"],
+correctAnswer: "درجة المرونة والتفصيل في التنفيذ"
+},
+{
+question: "حسب بطاقات الأهداف المتوازنة في صياغة الأهداف، المحور الذي يقيّم جودة المنتجات وآجال الإنتاج ينتمي إلى:",
+options: ["محور العمليات الداخلية", "المحور المالي", "محور العملاء", "محور التعلم التنظيمي"],
+correctAnswer: "محور العمليات الداخلية"
+},
+{
+question: "حسب بطاقات الأهداف المتوازنة، أي من المؤشرات التالية لا يندرج تحت المحور المالي؟",
+options: ["العائد على الاستثمار", "تكلفة المنتجات", "رضا العملاء", "التدفق النقدي"],
+correctAnswer: "رضا العملاء"
+},
+{
+question: "ما هو الغرض الرئيسي من بطاقة الأداء المتوازن؟",
+options: ["تقييم الأداء بشكل متكامل عبر ربط الأهداف المتعددة", "قياس الأداء المالي", "مراقبة العمليات التشغيلية الداخلية", "تحديد سياسات التسعير في المنظمة"],
+correctAnswer: "تقييم الأداء بشكل متكامل عبر ربط الأهداف المتعددة"
+},
+{
+question: "ما هو تعريف الخطط في إطار عناصر التخطيط؟",
+options: ["النتائج المرجوة من الأفراد أو المجموعات", "وثائق توضّح كيفية تحقيق الأهداف", "مقاييس لتقييم أداء الموظفين", "استراتيجيات عامة بدون جداول زمنية"],
+correctAnswer: "وثائق توضّح كيفية تحقيق الأهداف"
+},
+{
+question: "ما هو تعريف الأهداف في عملية التخطيط؟",
+options: ["جداول زمنية لتنفيذ الأنشطة", "النتائج المرجوة من الأفراد أو المجموعات أو المنظمة", "وثائق تحدد كيفية تخصيص الموارد", "خصائص الموارد المتاحة"],
+correctAnswer: "النتائج المرجوة من الأفراد أو المجموعات أو المنظمة"
+},
+{
+question: "أي من التعريفات التالية يعبّر بدقة عن مفهوم الاستراتيجية كما ورد في المحتوى؟",
+options: ["إجراء عشوائي يتخذه المديرون", "مجموعة سياسات داخلية", "خطة مؤقتة", "اتجاه عام للشركة"],
+correctAnswer: "اتجاه عام للشركة"
+},
+{
+question: "ما الوصف الأكثر دقة لوظيفة التنظيم؟",
+options: ["مراقبة الأداء الفعلي", "ترتيب وهيكلة العمل وتوزيع الموارد", "التأثير على الأفراد", "وضع الأهداف واستراتيجياتها"],
+correctAnswer: "ترتيب وهيكلة العمل وتوزيع الموارد"
+},
+{
+question: "أي من الخيارات التالية يصف وظيفة الرقابة بشكل أدق؟",
+options: ["تحفيز المرؤوسين", "ترتيب المهام وهيكلة المنظمة", "مراقبة ومقارنة الأداء الفعلي بالأهداف وتصحيح الانحرافات", "تحديد الأهداف وصياغة الخطط"],
+correctAnswer: "مراقبة ومقارنة الأداء الفعلي بالأهداف وتصحيح الانحرافات"
+},
+{
+question: "قام مدير القسم /جون/ بالاهتمام برضا العملاء وجودة المنتجات وبالتالي زيادة الإيرادات. يوصف ذلك بـ ....",
+options: ["الفعالية", "الكفاءة", "الإنتاجية", "الجدارة"],
+correctAnswer: "الفعالية"
+},
+{
+question: "قامت رئيسة القسم /جوانا/ بالتأكد من إعداد الموظفين ومواردهم بشكل جيد. يوصف ذلك بـ ....",
+options: ["الفعالية", "الكفاءة", "الإنتاجية", "الجدارة"],
+correctAnswer: "الكفاءة"
+}
+];
+
+        // Quiz State Variables
+        let currentUser = null;
+        let selectedQuestions = [];
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+        let quizTimer = null;
+        let timeRemaining = 30 * 60; // 30 minutes in seconds
+        let quizStartTime = null;
+
+        // DOM Elements
+        const userForm = document.getElementById('user-form');
+        const userInfoForm = document.getElementById('userInfoForm');
+        const loading = document.getElementById('loading');
+        const quizContainer = document.getElementById('quiz-container');
+        const resultsContainer = document.getElementById('results-container');
+        const errorMessage = document.getElementById('error-message');
+        const successMessage = document.getElementById('success-message');
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM Content Loaded'); // للتتبع
+            setupEventListeners();
+            console.log('App initialized');
+            console.log('Quiz system initialized');
+        function setupEventListeners() {
+            console.log('Setting up event listeners...');
+            if (!userInfoForm) {
+                showError('خطأ في تحميل النموذج. يرجى إعادة تحميل الصفحة.');
+                return;
+            }
+            
+            console.log('Setting up event listeners'); // للتتبع
+            
+            // User form submission
+            userInfoForm.addEventListener('submit', handleUserFormSubmit);
+            console.log('Form event listener added');
+            
+            // Quiz navigation buttons
+            const nextBtn = document.getElementById('next-btn');
+            const prevBtn = document.getElementById('prev-btn');
+            const submitBtn = document.getElementById('submit-btn');
+            
+            if (nextBtn) {
+                nextBtn.addEventListener('click', nextQuestion);
+                console.log('Next button listener added'); // للتتبع
+            }
+            
+            if (prevBtn) {
+                prevBtn.addEventListener('click', previousQuestion);
+                console.log('Previous button listener added'); // للتتبع
+            }
+            
+            if (submitBtn) {
+                submitBtn.addEventListener('click', submitQuiz);
+                console.log('Submit button listener added'); // للتتبع
+            }
+            
+            console.log('All event listeners set up'); // للتتبع
+            
+            // Admin panel keyboard shortcut
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+                    e.preventDefault();
+                    toggleAdminPanel();
+                }
+            });
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            successMessage.style.display = 'none';
+            errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function showSuccess(message) {
+            successMessage.textContent = message;
+            successMessage.style.display = 'block';
+            errorMessage.style.display = 'none';
+            successMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function hideMessages() {
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+        }
+
+        async function handleUserFormSubmit(event) {
+            event.preventDefault();
+            console.log('Form submitted'); // للتتبع
+            
+            console.log('Form submitted - starting validation');
+            hideMessages();
+
+            const formData = new FormData(userInfoForm);
+            const fullName = formData.get('fullName').trim();
+            const email = formData.get('email').trim().toLowerCase();
+            console.log('Form data:', { fullName, email });
+
+
+            // Validation
+            if (!fullName || !email) {
+                console.log('Validation failed: empty fields');
+                showError('يرجى ملء جميع الحقول.');
+                return;
+            }
+
+            if (!isValidEmail(email)) {
+                console.log('Validation failed: invalid email');
+                showError('يرجى إدخال عنوان بريد إلكتروني صحيح.');
+                return;
+            }
+
+            // Check if email has already taken the quiz
+            const hasAlreadyTaken = await hasEmailTakenQuiz(email);
+                console.log('Validation failed: email already used');
+            if (hasAlreadyTaken) {
+                showError('هذا البريد الإلكتروني قد أجرى الاختبار من قبل.');
+
+            // Store user info and start quiz
+            console.log('Validation passed - starting quiz');
+            currentUser = { fullName, email };
+            console.log('Starting quiz for user:', currentUser); // للتتبع
+            startQuiz();
+        }
+
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        async function hasEmailTakenQuiz(email) {
+            if (supabase) {
+                try {
+                    const { data, error } = await supabase
+                        .from('quiz_participants')
+                        .select('id')
+                        .eq('email', email)
+                        .single();
+                    
+                    if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+                        console.error('Error checking email:', error);
+                        return false;
+                    }
+                    
+                    return !!data;
+                } catch (error) {
+                    console.error('Error checking email:', error);
+                    return false;
+                }
+            } else {
+                // Fallback to localStorage
+                const completedEmails = JSON.parse(localStorage.getItem('sbQuizCompletedEmails') || '[]');
+                return completedEmails.includes(email);
+            }
+        }
+
+        async function markEmailAsCompleted(email) {
+            if (supabase) {
+                // Data will be saved when saving quiz results
+                return;
+            } else {
+                // Fallback to localStorage
+                const completedEmails = JSON.parse(localStorage.getItem('sbQuizCompletedEmails') || '[]');
+                if (!completedEmails.includes(email)) {
+                    completedEmails.push(email);
+                    localStorage.setItem('sbQuizCompletedEmails', JSON.stringify(completedEmails));
+                }
+            }
+        }
+
+        function startQuiz() {
+            console.log('Starting quiz...');
+            console.log('startQuiz function called'); // للتتبع
+            // Show loading
+            userForm.style.display = 'none';
+            loading.style.display = 'block';
+            
+            console.log('Loading screen shown');
+            console.log('Loading screen shown'); // للتتبع
+
+            // Simulate loading time for better UX
+            setTimeout(() => {
+                console.log('Initializing quiz questions...');
+                console.log('Loading timeout completed'); // للتتبع
+                // Use all questions in order (no random selection)
+                selectedQuestions = [...questionBank];
+                userAnswers = new Array(20).fill(null);
+                currentQuestionIndex = 0;
+                
+                console.log('Questions loaded:', selectedQuestions.length);
+                
+                console.log('Questions prepared:', selectedQuestions.length); // للتتبع
+                quizStartTime = new Date();
+                // Initialize quiz UI
+                loading.style.display = 'none';
+                quizContainer.style.display = 'block';
+                quizContainer.classList.add('fade-in');
+                
+                console.log('Quiz UI initialized');
+                console.log('Quiz container shown'); // للتتبع
+
+                // Start timer
+                startTimer();
+                console.log('Timer started');
+                console.log('Timer started'); // للتتبع
+
+                // Display first question
+                displayQuestion();
+                console.log('First question displayed');
+                console.log('First question displayed'); // للتتبع
+            }, 2000);
+        }
+
+
+        function startTimer() {
+            const timerDisplay = document.getElementById('timer');
+            
+            quizTimer = setInterval(() => {
+                if (timeRemaining <= 0) {
+                    clearInterval(quizTimer);
+                    submitQuiz();
+                    return;
+                }
+
+                timeRemaining--;
+                const minutes = Math.floor(timeRemaining / 60);
+                const seconds = timeRemaining % 60;
+                timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+                // Change color when time is running out
+                if (timeRemaining <= 300) { // 5 minutes
+                    timerDisplay.style.color = '#e74c3c';
+                    timerDisplay.style.animation = 'pulse 1s infinite';
+                } else if (timeRemaining <= 600) { // 10 minutes
+                    timerDisplay.style.color = '#f39c12';
+                }
+            }, 1000);
+        }
+
+        function displayQuestion() {
+            console.log('displayQuestion called for question:', currentQuestionIndex + 1); // للتتبع
+            const question = selectedQuestions[currentQuestionIndex];
+            console.log('Current question:', question); // للتتبع
+            
+            const progressFill = document.getElementById('progress-fill');
+            const questionCounter = document.getElementById('question-counter');
+            const currentQuestionEl = document.getElementById('current-question');
+            const optionsContainer = document.getElementById('options-container');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const submitBtn = document.getElementById('submit-btn');
+
+            // تحقق من وجود العناصر
+            if (!progressFill || !questionCounter || !currentQuestionEl || !optionsContainer) {
+                console.error('Missing DOM elements for quiz display');
+
+            // Update progress
+            const progress = ((currentQuestionIndex + 1) / selectedQuestions.length) * 100;
+            progressFill.style.width = `${progress}%`;
+
+            // Update question counter
+            questionCounter.textContent = `السؤال ${currentQuestionIndex + 1} من ${selectedQuestions.length}`;
+
+            // Display question
+            currentQuestionEl.textContent = question.question;
+
+            // Display options
+            optionsContainer.innerHTML = '';
+            question.options.forEach((option, index) => {
+                const optionEl = document.createElement('div');
+                optionEl.className = 'option';
+                optionEl.textContent = option;
+                optionEl.onclick = () => selectOption(index, optionEl);
+
+                // Highlight if previously selected
+                if (userAnswers[currentQuestionIndex] === option) {
+                    optionEl.classList.add('selected');
+                }
+
+                optionsContainer.appendChild(optionEl);
+            });
+
+            // Update navigation buttons
+            prevBtn.disabled = currentQuestionIndex === 0;
+            
+            if (currentQuestionIndex === selectedQuestions.length - 1) {
+                nextBtn.style.display = 'none';
+                submitBtn.style.display = 'inline-block';
+            } else {
+                nextBtn.style.display = 'inline-block';
+                submitBtn.style.display = 'none';
+            }
+            
+            console.log('Question displayed successfully'); // للتتبع
+        }
+
+        function selectOption(optionIndex, optionEl) {
+            // Remove previous selection
+            const options = document.querySelectorAll('.option');
+            options.forEach(opt => opt.classList.remove('selected'));
+
+            // Add selection to clicked option
+            optionEl.classList.add('selected');
+
+            // Store answer
+            const selectedAnswer = selectedQuestions[currentQuestionIndex].options[optionIndex];
+            userAnswers[currentQuestionIndex] = selectedAnswer;
+            if (currentQuestionIndex < selectedQuestions.length - 1) {
+                currentQuestionIndex++;
+                console.log('Moving to question:', currentQuestionIndex + 1); // للتتبع
+                displayQuestion();
+            } else {
+                console.log('Already at last question'); // للتتبع
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                console.log('Moving to question:', currentQuestionIndex + 1); // للتتبع
+                displayQuestion();
+            } else {
+                console.log('Already at first question'); // للتتبع
+            }
+        }
+
+                    async function submitQuiz() {
+                // Clear timer
+                if (quizTimer) {
+                    clearInterval(quizTimer);
+                }
+
+                const quizEndTime = new Date();
+                const timeTaken = Math.floor((quizEndTime - quizStartTime) / 1000); // in seconds
+
+                let correctAnswers = 0;
+                let results = [];
+
+                selectedQuestions.forEach((question, index) => {
+                    const userAnswer = userAnswers[index];
+                    const isCorrect = userAnswer === question.correctAnswer;
+
+                    if (isCorrect) {
+                        correctAnswers++;
+                    }
+
+                    results.push({
+                        question: question.question,
+                        userAnswer: userAnswer || 'لا توجد إجابة',
+                        correctAnswer: question.correctAnswer,
+                        isCorrect: isCorrect
+                    });
+                });
+
+                console.log('Quiz results:', {
+                    correctAnswers,
+                    totalQuestions: selectedQuestions.length
+                });
+
+                await markEmailAsCompleted(currentUser.email);
+                displayResults(correctAnswers, results);
+                await saveQuizResults(correctAnswers, selectedQuestions.length, timeTaken, results);
+            }
+                        // Clear timer
+                        if (quizTimer) {
+                            clearInterval(quizTimer);
+                        }
+
+                        // Calculate time taken
+                        const quizEndTime = new Date();
+                        const timeTaken = Math.floor((quizEndTime - quizStartTime) / 1000); // in seconds
+
+                        // Calculate score
+                        let correctAnswers = 0;
+                            
+                            if (isCorrect) {
+                                correctAnswers++;
+                            }
+
+                            results.push({
+                                question: question.question,
+                                userAnswer: userAnswer || 'لا توجد إجابة',
+                                correctAnswer: question.correctAnswer,
+                                isCorrect: isCorrect
+                            });
+                        };
+
+            console.log('Quiz results:', { correctAnswers, totalQuestions: selectedQuestions.length });
+
+            // Save results to database
+            // Mark email as completed
+            await markEmailAsCompleted(currentUser.email);
+
+            // Display results
+            displayResults(correctAnswers, results);
+        }
+
+        async function saveQuizResults(score, totalQuestions, timeTaken, results) {
+            if (supabase) {
+                try {
+                    // First, insert or get participant
+                    const { data: participant, error: participantError } = await supabase
+                        .from('quiz_participants')
+            // Auto-export to CSV after quiz completion
+            exportResultToCSV(quizResult);
+
+                            upsert({
+                            full_name: currentUser.fullName,
+                            email: currentUser.email
+                        }, {
+                            onConflict: 'email'
+                        })
+                        .select()
+                        .single();
+
+                    if (participantError) {
+                        console.error('Error saving participant:', participantError);
+                        return;
+                    }
+
+                    // Then, insert quiz result
+                    const { error: resultError } = await supabase
+                        .from('quiz_results')
+                        .insert({
+                            participant_id: participant.id,
+                            score: score,
+                            total_questions: totalQuestions,
+                            time_taken: timeTaken,
+                            answers: results
+                        });
+
+                    if (resultError) {
+                        console.error('Error saving quiz result:', resultError);
+                    } else {
+                        console.log('Quiz results saved to database successfully');
+                    }
+                } catch (error) {
+                    console.error('Error saving to database:', error);
+                }
+            } else {
+                // Fallback to localStorage
+                const quizResult = {
+                    user: currentUser,
+                    score: score,
+                    totalQuestions: totalQuestions,
+                    timeTaken: timeTaken,
+                    results: results,
+                    completedAt: new Date().toISOString()
+                };
+
+                const allResults = JSON.parse(localStorage.getItem('sbQuizResults') || '[]');
+                allResults.push(quizResult);
+                localStorage.setItem('sbQuizResults', JSON.stringify(allResults));
+                console.log('Quiz results saved to localStorage');
+            }
+        }
+
+        function displayResults(score, results) {
+            const totalQuestions = selectedQuestions.length;
+            const percentage = Math.round((score / totalQuestions) * 100);
+
+            console.log('Displaying results:', { score, totalQuestions, percentage });
+
+            // Hide quiz container and show results
+            quizContainer.style.display = 'none';
+            resultsContainer.style.display = 'block';
+            resultsContainer.classList.add('fade-in');
+
+            // Update score display
+            document.getElementById('final-score').textContent = `نتيجتك: ${score}/${totalQuestions}`;
+            document.getElementById('score-percentage').textContent = `${percentage}% صحيح`;
+
+            // Update score display color based on performance
+            const scoreDisplay = document.querySelector('.score-display');
+            if (percentage >= 80) {
+                scoreDisplay.style.background = 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
+            } else if (percentage >= 60) {
+                scoreDisplay.style.background = 'linear-gradient(135deg, #ffc107 0%, #fd7e14 100%)';
+            } else {
+                scoreDisplay.style.background = 'linear-gradient(135deg, #dc3545 0%, #e83e8c 100%)';
+            }
+
+            // Display detailed results
+            const resultsList = document.getElementById('results-list');
+            resultsList.innerHTML = '';
+
+            results.forEach((result, index) => {
+                const resultItem = document.createElement('div');
+                resultItem.className = `result-item ${result.isCorrect ? 'correct' : 'incorrect'}`;
+
+                resultItem.innerHTML = `
+                    <div class="result-question">${index + 1}. ${result.question}</div>
+                    <div class="result-answer">
+                        <strong>إجابتك:</strong> ${result.userAnswer}<br>
+                        <strong>الإجابة الصحيحة:</strong> ${result.correctAnswer}
+                    </div>
+                `;
+
+                resultsList.appendChild(resultItem);
+            });
+
+            // Scroll to results
+            resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function restartQuiz() {
+            console.log('Restarting quiz...');
+            
+            // Reset all state
+            selectedQuestions = getRandomQuestions(questionBank, questionBank.length);
+            userAnswers = new Array(questionBank.length).fill(null);
+            currentQuestionIndex = 0;
+            userAnswers = [];
+            timeRemaining = 30 * 60;
+            quizStartTime = null;
+
+            if (quizTimer) {
+                clearInterval(quizTimer);
+                quizTimer = null;
+            }
+
+            // Reset form
+            userInfoForm.reset();
+            hideMessages();
+
+            // Show user form again
+            resultsContainer.style.display = 'none';
+            userForm.style.display = 'block';
+            userForm.classList.add('fade-in');
+
+            // Scroll to top
+            document.querySelector('.container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Admin Panel Functions
+        function toggleAdminPanel() {
+            const adminPanel = document.getElementById('admin-panel');
+            if (adminPanel.style.display === 'block') {
+                adminPanel.style.display = 'none';
+            } else {
+                adminPanel.style.display = 'block';
+                refreshStats();
+            }
+        }
+
+        async function refreshStats() {
+            console.log('Refreshing admin stats...');
+            
+            if (supabase) {
+                try {
+                    // Get total participants
+                    const { count: participantCount } = await supabase
+                        .from('quiz_participants')
+                        .select('*', { count: 'exact', head: true });
+
+                    // Get all results for calculations
+                    const { data: results } = await supabase
+                        .from('quiz_results')
+                        .select(`
+                            *,
+                            quiz_participants (full_name, email)
+                        `)
+                        .order('completed_at', { ascending: false });
+
+                    // Calculate average score
+                    let avgScore = 0;
+                    if (results && results.length > 0) {
+                        const totalScore = results.reduce((sum, result) => sum + (result.score / result.total_questions * 100), 0);
+                        avgScore = Math.round(totalScore / results.length);
+                    }
+
+                    // Get last participant
+                    const lastParticipant = results && results.length > 0 ? results[0].quiz_participants.full_name : '-';
+
+                    // Update stats display
+                    document.getElementById('total-participants').textContent = participantCount || 0;
+                    document.getElementById('avg-score').textContent = `${avgScore}%`;
+                    document.getElementById('last-participant').textContent = lastParticipant;
+
+                    // Display results table
+                    displayAdminResults(results || []);
+                } catch (error) {
+                    console.error('Error refreshing stats:', error);
+                }
+            } else {
+                // Fallback to localStorage
+                const allResults = JSON.parse(localStorage.getItem('sbQuizResults') || '[]');
+                const completedEmails = JSON.parse(localStorage.getItem('sbQuizCompletedEmails') || '[]');
+
+                // Calculate stats
+                const totalParticipants = completedEmails.length;
+                let avgScore = 0;
+                if (allResults.length > 0) {
+                    const totalScore = allResults.reduce((sum, result) => sum + (result.score / result.totalQuestions * 100), 0);
+                    avgScore = Math.round(totalScore / allResults.length);
+                }
+                const lastParticipant = allResults.length > 0 ? allResults[allResults.length - 1].user.fullName : '-';
+
+                // Update stats display
+                document.getElementById('total-participants').textContent = totalParticipants;
+                document.getElementById('avg-score').textContent = `${avgScore}%`;
+                document.getElementById('last-participant').textContent = lastParticipant;
+
+                // Display results table
+                displayAdminResults(allResults);
+            }
+        }
+
+        function displayAdminResults(results) {
+            const resultsDisplay = document.getElementById('results-display');
+            
+            if (!results || results.length === 0) {
+                resultsDisplay.innerHTML = '<p>لا توجد نتائج بعد.</p>';
+                return;
+            }
+
+            let tableHTML = `
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>الاسم</th>
+                            <th>البريد الإلكتروني</th>
+                            <th>النتيجة</th>
+                            <th>النسبة المئوية</th>
+                            <th>الوقت المستغرق</th>
+                            <th>تاريخ الإكمال</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            results.forEach(result => {
+                let name, email, score, totalQuestions, timeTaken, completedAt;
+                
+                if (supabase && result.quiz_participants) {
+                    // Supabase format
+                    name = result.quiz_participants.full_name;
+                    email = result.quiz_participants.email;
+                    score = result.score;
+                    totalQuestions = result.total_questions;
+                    timeTaken = result.time_taken;
+                    completedAt = new Date(result.completed_at).toLocaleString('ar-EG');
+                } else {
+                    // localStorage format
+                    name = result.user.fullName;
+                    email = result.user.email;
+                    score = result.score;
+                    totalQuestions = result.totalQuestions;
+                    timeTaken = result.timeTaken || 0;
+                    completedAt = new Date(result.completedAt).toLocaleString('ar-EG');
+                }
+
+                const percentage = Math.round((score / totalQuestions) * 100);
+                const timeFormatted = formatTime(timeTaken);
+
+                tableHTML += `
+                    <tr>
+                        <td>${name}</td>
+                        <td>${email}</td>
+                        <td>${score}/${totalQuestions}</td>
+                        <td>${percentage}%</td>
+                        <td>${timeFormatted}</td>
+                        <td>${completedAt}</td>
+                    </tr>
+                `;
+            });
+
+            tableHTML += '</tbody></table>';
+            resultsDisplay.innerHTML = tableHTML;
+        }
+
+        function formatTime(seconds) {
+            if (!seconds) return '0:00';
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
+
+        async function exportToCSV() {
+            console.log('Exporting to CSV...');
+            
+            let results = [];
+            
+            if (supabase) {
+                try {
+                    const { data } = await supabase
+                        .from('quiz_results')
+                        .select(`
+                            *,
+                            quiz_participants (full_name, email)
+                        `)
+                        .order('completed_at', { ascending: false });
+                    results = data || [];
+                } catch (error) {
+                    console.error('Error fetching data for export:', error);
+                    return;
+                }
+            } else {
+                results = JSON.parse(localStorage.getItem('sbQuizResults') || '[]');
+            }
+
+            if (results.length === 0) {
+                alert('لا توجد بيانات للتصدير');
+                return;
+            }
+
+            // Create CSV content
+            let csvContent = 'الاسم,البريد الإلكتروني,النتيجة,إجمالي الأسئلة,النسبة المئوية,الوقت المستغرق,تاريخ الإكمال\n';
+
+            results.forEach(result => {
+                let name, email, score, totalQuestions, timeTaken, completedAt;
+                
+                if (supabase && result.quiz_participants) {
+                    name = result.quiz_participants.full_name;
+                    email = result.quiz_participants.email;
+                    score = result.score;
+                    totalQuestions = result.total_questions;
+                    timeTaken = result.time_taken;
+                    completedAt = new Date(result.completed_at).toLocaleString('ar-EG');
+                } else {
+                    name = result.user.fullName;
+                    email = result.user.email;
+                    score = result.score;
+                    totalQuestions = result.totalQuestions;
+                    timeTaken = result.timeTaken || 0;
+                    completedAt = new Date(result.completedAt).toLocaleString('ar-EG');
+                }
+
+                const percentage = Math.round((score / totalQuestions) * 100);
+                const timeFormatted = formatTime(timeTaken);
+
+                csvContent += `"${name}","${email}",${score},${totalQuestions},${percentage}%,"${timeFormatted}","${completedAt}"\n`;
+            });
+
+            // Download CSV file
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `quiz_results_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        async function exportEmails() {
+            console.log('Exporting emails...');
+            
+            let emails = [];
+            
+            if (supabase) {
+                try {
+                    const { data } = await supabase
+                        .from('quiz_participants')
+                        .select('email')
+                        .order('created_at', { ascending: false });
+                    emails = data ? data.map(p => p.email) : [];
+                } catch (error) {
+                    console.error('Error fetching emails:', error);
+                    return;
+                }
+            } else {
+                emails = JSON.parse(localStorage.getItem('sbQuizCompletedEmails') || '[]');
+            }
+
+            if (emails.length === 0) {
+                alert('لا توجد إيميلات للتصدير');
+                return;
+            }
+
+            // Create text content
+            const emailContent = emails.join('\n');
+
+            // Download text file
+            const blob = new Blob([emailContent], { type: 'text/plain;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `quiz_emails_${new Date().toISOString().split('T')[0]}.txt`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        async function clearAllData() {
+            if (confirm('هل أنت متأكد من حذف جميع البيانات؟ هذا الإجراء لا يمكن التراجع عنه.')) {
+                if (supabase) {
+                    try {
+                        // Delete all quiz results first (due to foreign key constraint)
+                        await supabase.from('quiz_results').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+                        
+                        // Then delete all participants
+                        await supabase.from('quiz_participants').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+                        
+                        alert('تم حذف جميع البيانات من قاعدة البيانات');
+                    } catch (error) {
+                        console.error('Error clearing database:', error);
+                        alert('حدث خطأ أثناء حذف البيانات');
+                    }
+                } else {
+                    // Clear localStorage
+                    localStorage.removeItem('sbQuizResults');
+                    localStorage.removeItem('sbQuizCompletedEmails');
+                    alert('تم حذف جميع البيانات المحلية');
+                }
+                
+                refreshStats();
+            }
+        }
+
+        // Add pulse animation for timer
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+                100% { transform: scale(1); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        console.log('Quiz system loaded successfully');     
+    </script>
+</body>
+</html>
